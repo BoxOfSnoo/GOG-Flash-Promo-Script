@@ -61,8 +61,8 @@ class GameInfo(object):
 
     def __str__(self):
         return ("{title: <30}    -{discount: >2}%  ${price: <.2f} (${fullPrice: <.2f})  {stockLeft: >4}/{stock: >4}".format(
-                title=self.getSafeTitle(), discount=self.discount, 
-                price=self.price, fullPrice=self.fullPrice, 
+                title=self.getSafeTitle(), discount=self.discount,
+                price=self.price, fullPrice=self.fullPrice,
                 stock=self.stock, stockLeft=self.stockLeft))
 
     def getSafeTitle(self):
@@ -73,7 +73,7 @@ class InsomniaPromo(object):
     SoundFileUrl = "http://soundbible.com/grab.php?id=1550&type=wav"
     SoundFile = "Alarm.wav"
     batchPath = "./AlarmScript.sh"
-	
+
     @staticmethod
     def _soundAlarm():
         SoundFile = InsomniaPromo.SoundFile
@@ -193,7 +193,7 @@ class InsomniaPromo(object):
                 return
 
             time.sleep(self.delay)
-            
+
     def _pollServer(self):
         if VERBAL:
             print(".....................................................")
@@ -217,10 +217,10 @@ class InsomniaPromo(object):
                 self.foundPattern = pattern.pattern
                 return True
         return False
-        
+
     def _processPatterns(self, patterns):
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-        
+
     def _newGamesAlert(self):
         if VERBAL:
             print("New games!")
@@ -243,7 +243,7 @@ class InsomniaPromo(object):
     def _notFound(self):
         if VERBAL:
             print("No game found. Will now sleep for " + str(self.delay) + " seconds.")
-            
+
     def _getFoundPattern(self):
         return self.foundPattern
 
@@ -257,23 +257,21 @@ class CurrentPromo(InsomniaPromo):
 
     def _displayCurrentGames(self):
         try:
-            print ("Seasoned: {0}".format(self.games[0]))
-            print ("Fresh:    {0}".format(self.games[1]))
+            print ("Game URL: {0}".format(self.games[0]))
         except Exception:
             print ("Error displaying game title!")
 
-    def _createGameInfo(self, replyDict, root):
-        title = replyDict[root]['title']
-        stock = replyDict[root]['stock']
-        stockLeft = replyDict[root]['stockLeft']
-        discount = replyDict[root]['discount']
-        price, fullPrice = replyDict[root]['prices']['p']['USD']['1'].split(',')
+    def _createGameInfo(self, replyDict, root='root'):
+        title = replyDict['product']['url']
+        stock = replyDict['amountTotal']
+        stockLeft = replyDict['amountLeft']
+        discount = replyDict['discount']
+        price, fullPrice = replyDict['product']['prices']['groupsPrices']['USD']['1'].split(';')
         return GameInfo(title=title, price=float(price), fullPrice=float(fullPrice), discount=int(discount), stock=int(stock), stockLeft=int(stockLeft))
 
     def _getCurrentGames(self, body):
         replyDict = json.loads(body)
-        currentGames = [self._createGameInfo(replyDict, 'oldschool'),
-                        self._createGameInfo(replyDict, 'fresh')]
+        currentGames = [self._createGameInfo(replyDict, '')]
         return currentGames
 
 
@@ -282,7 +280,7 @@ def ask(message):
     return answer
 
 def main():
-    promo = CurrentPromo(sourceUrl="http://www.gog.com/doublesomnia/getdeals", delay=10.0)
+    promo = CurrentPromo(sourceUrl="http://www.gog.com/insomnia/current_deal", delay=10.0)
 
     while (True):
         print ("\nGOG Flash Promo Watcher")
