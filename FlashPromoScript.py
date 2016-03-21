@@ -259,12 +259,12 @@ class CurrentPromo(InsomniaPromo):
 
     def _displayCurrentGames(self):
         try:
-            print ("Game URL: {0}".format(self.games[0]))
+            print ("Game: {0}".format(self.games[0]))
         except Exception:
             print ("Error displaying game title!")
 
     def _createGameInfo(self, replyDict, root='root'):
-        title = replyDict['product']['url']
+        title = replyDict['product']['title']
         stock = replyDict['amountTotal']
         stockLeft = replyDict['amountLeft']
         discount = replyDict['discount']
