@@ -32,7 +32,7 @@ ERROR_FORMAT = ("\n**************************************************"
                 "**************************************************\n")
 
 class GameInfo(object):
-    def __init__(self, title, price, fullPrice, discount, stock, stockLeft):
+    def __init__(self, title, price, fullPrice, discount, stock, stockLeft, category):
         self.title = title
         self.stockLeft = stockLeft
         self.discount = discount
@@ -41,6 +41,7 @@ class GameInfo(object):
         self.discount = discount
         self.stock = stock
         self.stockLeft = stockLeft
+        self.category = category
 
     def __repr__(self):
         return "GameInfo:{0},{1},{2},{3}".format(
@@ -60,8 +61,9 @@ class GameInfo(object):
         return hash(self.__repr__())
 
     def __str__(self):
-        return ("{title: <30}    -{discount: >2}%  ${price: <.2f} (${fullPrice: <.2f})  {stockLeft: >4}/{stock: >4}".format(
-                title=self.getSafeTitle(), discount=self.discount,
+        return ("{title: <30} ({category})    -{discount: >2}%  ${price: <.2f} (${fullPrice: <.2f})  {stockLeft: >4}/{stock: >4}".format(
+                title=self.getSafeTitle(), category=self.category,
+                discount=self.discount,
                 price=self.price, fullPrice=self.fullPrice,
                 stock=self.stock, stockLeft=self.stockLeft))
 
@@ -267,7 +269,8 @@ class CurrentPromo(InsomniaPromo):
         stockLeft = replyDict['amountLeft']
         discount = replyDict['discount']
         price, fullPrice = replyDict['product']['prices']['groupsPrices']['USD']['1'].split(';')
-        return GameInfo(title=title, price=float(price), fullPrice=float(fullPrice), discount=int(discount), stock=int(stock), stockLeft=int(stockLeft))
+        category = replyDict['product']['category'].strip(' ')
+        return GameInfo(title=title, price=float(price), fullPrice=float(fullPrice), discount=int(discount), stock=int(stock), stockLeft=int(stockLeft), category=category)
 
     def _getCurrentGames(self, body):
         replyDict = json.loads(body)
